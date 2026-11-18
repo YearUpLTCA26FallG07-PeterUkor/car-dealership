@@ -1,5 +1,6 @@
 package com.pluralsight;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -86,30 +87,120 @@ public class UserInterface {
 
     // search vehicles by price range
     public void processGetByPriceRequest() {
+        BigDecimal lowPrice = promptForPrice("Enter the Lowest Price (ex: 5000): ");
+        BigDecimal highPrice = promptForPrice("Enter the Highest Price (ex: 20000): ");
+
+        System.out.println("\n=== Vehicles between $" + lowPrice + " and $" + highPrice + " ===");
+        displayVehicles(dealership.getVehiclesByPrice(lowPrice, highPrice));
     }
 
     // search vehicles by make and model
     public void processGetByMakeModelRequest() {
+        System.out.print("\nEnter the Make (ex: Ford): ");
+        String make = input.nextLine().trim();
+        System.out.print("Enter the Model (ex: Ranger): ");
+        String model = input.nextLine().trim();
+
+        System.out.println("\n=== " + make + " " + model + " Vehicles ===");
+        displayVehicles(dealership.getVehiclesByMakeModel(make, model));
     }
 
     // search vehicles by year range
     public void processGetByYearRequest() {
+        int lowYear = promptForNumber("Enter the Oldest Year (ex: 2005): ");
+        int highYear = promptForNumber("Enter the Newest Year (ex: 2020): ");
+
+        System.out.println("\n=== Vehicles from " + lowYear + " to " + highYear + " ===");
+        displayVehicles(dealership.getVehiclesByYear(lowYear, highYear));
     }
 
     // search vehicles by color
     public void processGetByColorRequest() {
+        System.out.print("\nEnter the Color (ex: Red): ");
+        String color = input.nextLine().trim();
+
+        System.out.println("\n=== " + color + " Vehicles ===");
+        displayVehicles(dealership.getVehiclesByColor(color));
     }
 
     // search vehicles by mileage range
     public void processGetByMileageRequest() {
+        int lowMileage = promptForNumber("Enter the Lowest Mileage (ex: 0): ");
+        int highMileage = promptForNumber("Enter the Highest Mileage (ex: 100000): ");
+
+        System.out.println("\n=== Vehicles with " + lowMileage + " to " + highMileage + " miles ===");
+        displayVehicles(dealership.getVehiclesByMileage(lowMileage, highMileage));
     }
 
     // search vehicles by type
     public void processGetByVehicleTypeRequest() {
+        System.out.print("\nEnter the Vehicle Type (car, truck, SUV, van): ");
+        String vehicleType = input.nextLine().trim();
+
+        System.out.println("\n=== " + vehicleType + " Vehicles ===");
+        displayVehicles(dealership.getVehiclesByType(vehicleType));
+    }
+
+    // keep asking until the user enters a whole number
+    private int promptForNumber(String prompt) {
+        while (true) {
+            System.out.print("\n" + prompt);
+            try {
+                return Integer.parseInt(input.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("!!! Please enter a whole number !!!");
+            }
+        }
+    }
+
+    // keep asking until the user enters a valid price
+    private BigDecimal promptForPrice(String prompt) {
+        while (true) {
+            System.out.print("\n" + prompt);
+            try {
+                return new BigDecimal(input.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("!!! Please enter a valid price (numbers only) !!!");
+            }
+        }
     }
 
     // prompt for a new vehicle and add it to the inventory
     public void processAddVehicleRequest() {
+        System.out.println("\n=== Enter the New Vehicle Information ===");
+
+        int vehicleVin = promptForNumber("VIN (whole number, ex: 12345): ");
+
+        // every VIN in the inventory has to be unique
+        for (Vehicle vehicle : dealership.getAllVehicles()) {
+            if (vehicle.getVin() == vehicleVin) {
+                System.out.println("\n!!! A vehicle with VIN " + vehicleVin + " already exists !!!");
+                return;
+            }
+        }
+
+        int vehicleYear = promptForNumber("Year (ex: 2018): ");
+        System.out.print("\nMake (ex: Toyota): ");
+        String vehicleMake = input.nextLine().trim();
+        System.out.print("Model (ex: Camry): ");
+        String vehicleModel = input.nextLine().trim();
+        System.out.print("Type (car, truck, SUV, van): ");
+        String vehicleType = input.nextLine().trim();
+        System.out.print("Color (ex: Blue): ");
+        String vehicleColor = input.nextLine().trim();
+        int vehicleOdometer = promptForNumber("Odometer (miles, ex: 45000): ");
+        BigDecimal vehiclePrice = promptForPrice("Price (ex: 15995.00): ");
+
+        Vehicle newVehicle = new Vehicle(vehicleVin, vehicleYear, vehicleMake, vehicleModel,
+                vehicleType, vehicleColor, vehicleOdometer, vehiclePrice);
+        dealership.addVehicle(newVehicle);
+
+        // save right away so the file always matches the inventory
+        new DealershipFileManager().saveDealership(dealership);
+
+        System.out.println("\n=== Vehicle Added Successfully ===");
+        System.out.println(Vehicle.tableHeader());
+        System.out.println(newVehicle);
     }
 
     // remove a vehicle from the inventory by VIN
