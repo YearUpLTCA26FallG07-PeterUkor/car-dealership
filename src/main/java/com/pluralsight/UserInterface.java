@@ -205,5 +205,41 @@ public class UserInterface {
 
     // remove a vehicle from the inventory by VIN
     public void processRemoveVehicleRequest() {
+        System.out.println("\n=== Remove a Vehicle ===");
+        int vehicleVin = promptForNumber("Enter the VIN of the vehicle to remove (ex: 10112): ");
+
+        Vehicle vehicleToRemove = findVehicleByVin(vehicleVin);
+        if (vehicleToRemove == null) {
+            System.out.println("\n!!! No vehicle found with VIN " + vehicleVin + " !!!");
+            return;
+        }
+
+        // show the vehicle and confirm before removing it
+        System.out.println("\n" + Vehicle.tableHeader());
+        System.out.println(vehicleToRemove);
+        System.out.print("\nRemove this vehicle? (Y/N): ");
+        String confirm = input.nextLine().trim();
+
+        if (!confirm.equalsIgnoreCase("Y")) {
+            System.out.println("\n=== Vehicle Not Removed ===");
+            return;
+        }
+
+        dealership.removeVehicle(vehicleToRemove);
+
+        // save right away so the file always matches the inventory
+        new DealershipFileManager().saveDealership(dealership);
+
+        System.out.println("\n=== Vehicle Removed Successfully ===");
+    }
+
+    // return the vehicle with this VIN, or null if there is none
+    private Vehicle findVehicleByVin(int vehicleVin) {
+        for (Vehicle vehicle : dealership.getAllVehicles()) {
+            if (vehicle.getVin() == vehicleVin) {
+                return vehicle;
+            }
+        }
+        return null;
     }
 }
