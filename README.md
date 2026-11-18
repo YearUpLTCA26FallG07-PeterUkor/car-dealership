@@ -29,7 +29,7 @@ Requires Java 17 or newer.
 ### IntelliJ
 
 1. Open the project folder in IntelliJ.
-2. Open `src/main/java/com/pluralsight/Program.java`.
+2. Open `src/main/java/com/pluralsight/Main.java`.
 3. Click the green **Run** arrow next to `main`.
 
 ### Command Line
@@ -43,7 +43,7 @@ javac -d target/classes src/main/java/com/pluralsight/*.java
 Then start the app:
 
 ```bash
-java -cp target/classes com.pluralsight.Program
+java -cp target/classes com.pluralsight.Main
 ```
 
 ## Notes
